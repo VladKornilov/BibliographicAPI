@@ -2,7 +2,7 @@ import requests
 import json
 from crossref.restful import Works
 from StoredObjects import Publication
-from StoredObjects import getUniversity
+from StoredObjects import University
 from datetime import datetime
 
 baseUrl = 'https://api.crossref.org/'
@@ -28,7 +28,7 @@ def getPublicationByDOI(doi):
     authors = work['author']
     for authorDict in authors:
         if 'given' in authorDict:
-            savedAuthor = getUniversity().getCrossrefAuthor(authorDict['given'], authorDict['family'])
+            savedAuthor = University.getUniversity().getCrossrefAuthor(authorDict['given'], authorDict['family'])
             publ.authors.append(savedAuthor)
 
     return publ
