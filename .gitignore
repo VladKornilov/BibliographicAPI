@@ -1,0 +1,5 @@
+dist/*
+__pycache__/*
+BibliographicAPI/__pycache__
+*.egg-info
+test.py
