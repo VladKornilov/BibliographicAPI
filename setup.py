@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="kvv_BibliographicAPI",
-    version="0.0.2",
+    version="0.0.3",
     author="Vladislav Kornilov",
     author_email="v.kornilovv@yandex.ru",
     description="BibliographicAPI is used to access official APIs of several bibliographic databases",

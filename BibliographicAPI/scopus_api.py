@@ -2,8 +2,8 @@ import requests
 import json
 from StoredObjects import Publication
 
-baseUrl = 'https://api.elsevier.com/'
-abstractUrl = baseUrl + 'content/abstract/'
+_baseUrl = 'https://api.elsevier.com/'
+_abstractUrl = _baseUrl + 'content/abstract/'
 
 
 def getIndexType(index=""):
@@ -22,7 +22,7 @@ def indexRetrieval(index=""):
     if indexType is None:
         return None
 
-    finalUrl = abstractUrl + indexType + index
+    finalUrl = _abstractUrl + indexType + index
 
     params = {'httpAccept': 'application/json'}
     response = requests.get(finalUrl, params)
@@ -33,7 +33,12 @@ def indexRetrieval(index=""):
         return None
 
     publ = Publication()
-    data = x['abstracts-retrieval-response']['coredata']
+    response = x['abstracts-retrieval-response']
+    if response is None:
+        return None
+    data = response['coredata']
+    if data is None:
+        return None
 
     if 'dc:identifier' in data.keys():
         publ.scopusId = data['dc:identifier']
@@ -43,4 +48,3 @@ def indexRetrieval(index=""):
         publ.pii = data['pii']
 
     return publ
-

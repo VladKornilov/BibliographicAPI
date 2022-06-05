@@ -5,7 +5,7 @@ from StoredObjects import Publication
 from StoredObjects import University
 from datetime import datetime
 
-baseUrl = 'https://api.crossref.org/'
+_baseUrl = 'https://api.crossref.org/'
 
 def getPublicationByDOI(doi):
     works = Works()
@@ -26,10 +26,6 @@ def getPublicationByDOI(doi):
     publ.containerTitle = work['container-title']
 
     authors = work['author']
-    for authorDict in authors:
-        if 'given' in authorDict:
-            savedAuthor = University.getUniversity().getCrossrefAuthor(authorDict['given'], authorDict['family'])
-            publ.authors.append(savedAuthor)
 
     return publ
 
@@ -43,7 +39,7 @@ def getPublicationsByPeriod(author, fromDate, toDate):
     fromFormat = 'from-created-date:' + fromDate.strftime(dateFormat)
     toFormat = 'until-created-date:' + toDate.strftime(dateFormat)
 
-    query = baseUrl + 'works?query.author=' + queryName + '&filter=' + fromFormat + ',' + toFormat
+    query = _baseUrl + 'works?query.author=' + queryName + '&filter=' + fromFormat + ',' + toFormat
 
     
     response = requests.get(query)
