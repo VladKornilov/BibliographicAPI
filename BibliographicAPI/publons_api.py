@@ -1,13 +1,17 @@
 import requests
 import json
 from StoredObjects import Author, Publication
+from datetime import datetime
+from dateutil import parser
 
 _token = None
 _baseUrl = 'https://publons.com/api/v2/'
 
+
 def setToken(token):
     global _token
     _token = token
+
 
 def _request(url):
     if _token == None:
@@ -28,6 +32,7 @@ def _request(url):
     except:
         print('There was an error communiating with the Publons API')
 
+
 def _getID(author: Author):
     id = author.publonsID
     if id is None:
@@ -35,6 +40,7 @@ def _getID(author: Author):
     if id is None:
         id = author.orcID
     return id
+
 
 def addAuthorIDs(author: Author):
     id = _getID(author)
@@ -52,29 +58,33 @@ def addAuthorIDs(author: Author):
 def getPublicationsOfAuthor(author: Author):
     id = _getID(author)
     if id is None:
-        return None
-    url = 'academic/publication/?academic=' + id
+        return []
+
+    url = 'academic/publication/?academic=' + str(id)
     json_obj = _request(url)
     publications = []
     while True:
         results = json_obj['results']
         for res in results:
             info = res['publication']
-            
+
             pub = Publication()
             pub.title = info['title']
-            if info['ids'] is not None:
-                ids = info['ids']
-                pub.doi = ids['doi']
+            date = info['date_published']
+            if date is not None and date != "":
+                pub.publishedDate = parser.parse(date).date()
+
+            ids = info['ids']
+            if ids is not None:
+                pub.doi = ids['doi'].tolower()
                 pub.ut = ids['ut']
                 existingPub = author.searchPublicationByDOI(pub.doi)
                 if existingPub is not None:
                     existingPub.mergeIDs(pub)
                 else:
                     publications.append(pub)
-                    author.publications.append(pub)
+                    author.addPublication(pub)
 
-        
         url = json_obj['next']
         if url is None:
             break
@@ -93,4 +103,4 @@ def getAuthorsOfUniversity():
         if url is None:
             break
         json_obj = _request(url)
-    
+

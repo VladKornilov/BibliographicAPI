@@ -6,7 +6,7 @@ _baseUrl = 'https://pub.orcid.org/v3.0/'
 _expandedSearch = _baseUrl + 'expanded-search/?q='
 
 def getOrcidByName(author: Author):
-    finalUrl = _expandedSearch + '"' + author.engName + '"'
+    finalUrl = _expandedSearch + '"' + author.orcidName + '"'
 
     headers = {'content-type': 'application/json'}
     response = requests.get(finalUrl, headers=headers)
@@ -14,9 +14,10 @@ def getOrcidByName(author: Author):
 
     x = json.loads(json_str)
     result = x['expanded-result']
-    for field in result:
-        affils = field['institution-name']
-        for inst in affils:
-            if inst.startswith("Murmansk State"):
-                return field['orcid-id']
+    if result is not None:
+        for field in result:
+            affils = field['institution-name']
+            for inst in affils:
+                if inst.startswith("Murmansk State"):
+                    return field['orcid-id']
     return None

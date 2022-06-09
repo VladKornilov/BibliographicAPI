@@ -15,7 +15,7 @@ def getPublicationByDOI(doi):
     publ = Publication()
     publ.title = work['title']
     publ.type = work['type']
-    publ.doi = work['DOI']
+    publ.doi = work['DOI'].tolower()
     if 'ISSN' in work:
         publ.issn = work['ISSN']
     publ.citations = work['is-referenced-by-count']
@@ -48,7 +48,12 @@ def getPublicationsByPeriod(author, fromDate, toDate):
 
     publications = []
 
-    items = x['message']['items']
+    message = x['message']
+    if message is None:
+        return []
+    items = message['items']
+    if items is None:
+        return []
     for item in items:
         correctAuthor = False
         authors = item['author']
