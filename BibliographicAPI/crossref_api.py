@@ -15,7 +15,7 @@ def getPublicationByDOI(doi):
     publ = Publication()
     publ.title = work['title']
     publ.type = work['type']
-    publ.doi = work['DOI'].tolower()
+    publ.doi = work['DOI'].lower()
     if 'ISSN' in work:
         publ.issn = work['ISSN']
     publ.citations = work['is-referenced-by-count']

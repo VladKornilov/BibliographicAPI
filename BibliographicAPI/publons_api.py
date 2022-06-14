@@ -76,7 +76,7 @@ def getPublicationsOfAuthor(author: Author):
 
             ids = info['ids']
             if ids is not None:
-                pub.doi = ids['doi'].tolower()
+                pub.doi = ids['doi'].lower()
                 pub.ut = ids['ut']
                 existingPub = author.searchPublicationByDOI(pub.doi)
                 if existingPub is not None:
