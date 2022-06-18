@@ -13,14 +13,17 @@ def collectAuthorApiData(author, fromDate, toDate):
         for publon in publonsPubls:
             if fromDate <= publon.publishedDate <= toDate:
                 scopusPub = scopus_api.indexRetrieval(publon.doi)
-                publon.mergeIDs(scopusPub)
-                publications.append(publon)
+                publon.enrich(scopusPub)
+
+                if not publon.searchAuthor(author):
+                    author.addPublication(publon)
+                    publications.append(publon)
 
         crossrefPubls = crossref_api.getPublicationsByPeriod(author, fromDate, toDate)
         for cross in crossrefPubls:
             doi = cross.doi
             scopusPub = scopus_api.indexRetrieval(doi)
-            cross.mergeIDs(scopusPub)
+            cross.enrich(scopusPub)
             if scopusPub is not None:  # add only publs from Crossref existing in Scopus
                 # check if this pub already is added from Publons
                 publon = None
@@ -28,9 +31,10 @@ def collectAuthorApiData(author, fromDate, toDate):
                     if cross.doi == pub.doi:
                         publon = pub
                 if publon is not None:
-                    publon.mergeIDs(cross)
+                    publon.enrich(cross)
                 else:
                     # not exists in Publons, add new
+                    author.addPublication(cross)
                     publications.append(cross)
     return publications
 

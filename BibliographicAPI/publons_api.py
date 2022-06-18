@@ -80,7 +80,7 @@ def getPublicationsOfAuthor(author: Author):
                 pub.ut = ids['ut']
                 existingPub = author.searchPublicationByDOI(pub.doi)
                 if existingPub is not None:
-                    existingPub.mergeIDs(pub)
+                    existingPub.enrich(pub)
                 else:
                     publications.append(pub)
                     author.addPublication(pub)
