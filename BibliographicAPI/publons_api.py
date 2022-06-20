@@ -9,28 +9,33 @@ _baseUrl = 'https://publons.com/api/v2/'
 
 
 def setToken(token):
+    # try to make a request with this token, if incorrect, TypeError will be thrown
     global _token
     _token = token
+    _request('academic/0')
 
+def hasToken():
+    return _token
 
 def _request(url):
+    global _token
     if _token == None:
         print("Publons token was not provided")
         return
     headers = {'Authorization': 'Token ' + _token, 'Content-Type': 'application/json'}
     url = url.removeprefix(_baseUrl)
     r = requests.get(_baseUrl + url, headers=headers)
-    if r.status_code != 200:
-        raise Exception("Publons returned an error:\n" + r.text)
-    try:
-        r = r.json()
-        if "detail" in r:
-            if (r['detail'] == 'Invalid token.'):
-                print("Publons token is invalid")
-        else:
-            return r
-    except:
-        print('There was an error communiating with the Publons API')
+    r = r.json()
+    if 'detail' in r:
+        if r['detail'] == 'Invalid token.':
+            _token = None
+            raise TypeError('Некорректный токен Publons')
+        if r['detail'] == 'Invalid token header. No credentials provided.':
+            _token = None
+            raise TypeError('Токен Publons не предоставлен')
+
+    else:
+        return r
 
 
 def _getID(author: Author):
@@ -62,7 +67,6 @@ def getPublicationsOfAuthor(author: Author):
 
     url = 'academic/publication/?academic=' + str(id)
     json_obj = _request(url)
-    publications = []
     while True:
         results = json_obj['results']
         for res in results:
@@ -78,18 +82,18 @@ def getPublicationsOfAuthor(author: Author):
             if ids is not None:
                 pub.doi = ids['doi'].lower()
                 pub.ut = ids['ut']
+                pub.wosLink = f'https://gateway.webofknowledge.com/gateway/Gateway.cgi?GWVersion=2&SrcApp=Publons&SrcAuth=Publons_CEL&KeyUT=WOS:000304359700014&DestLinkType=FullRecord&DestApp=WOS_CPL'
                 existingPub = author.searchPublicationByDOI(pub.doi)
                 if existingPub is not None:
                     existingPub.enrich(pub)
                 else:
-                    publications.append(pub)
                     author.addPublication(pub)
 
         url = json_obj['next']
         if url is None:
             break
         json_obj = _request(url)
-    return publications
+    return author.publications
 
 
 def getAuthorsOfUniversity():

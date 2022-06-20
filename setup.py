@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name="kvv_BibliographicAPI",
-    version="0.0.6",
+    version="0.0.7",
     author="Vladislav Kornilov",
     author_email="v.kornilovv@yandex.ru",
     description="BibliographicAPI is used to access official APIs of several bibliographic databases",
@@ -23,9 +23,7 @@ setuptools.setup(
     packages=setuptools.find_packages(),
     install_requires=[
         'requests',
-        'beautifulsoup4',
-        'transliterate',
-        'prettytable',
+        'crossrefapi',
         'kvv_StoredObjects'
     ],
     python_requires=">=3.6",

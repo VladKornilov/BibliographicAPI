@@ -44,6 +44,7 @@ def indexRetrieval(index=""):
         publ.scopusId = data['dc:identifier']
     if 'eid' in data.keys():
         publ.eid = data['eid']
+        publ.scopusLink = f'https://www.scopus.com/record/display.uri?eid={publ.eid}&origin=resultslist'
     if 'pii' in data.keys():
         publ.pii = data['pii']
 
