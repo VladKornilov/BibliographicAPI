@@ -15,7 +15,7 @@ def setToken(token):
     _request('academic/0')
 
 def hasToken():
-    return _token
+    return _token is not None
 
 def _request(url):
     global _token
@@ -25,7 +25,10 @@ def _request(url):
     headers = {'Authorization': 'Token ' + _token, 'Content-Type': 'application/json'}
     url = url.removeprefix(_baseUrl)
     r = requests.get(_baseUrl + url, headers=headers)
-    r = r.json()
+    try:
+        r = r.json()
+    except:
+        return None
     if 'detail' in r:
         if r['detail'] == 'Invalid token.':
             _token = None
@@ -61,12 +64,17 @@ def addAuthorIDs(author: Author):
 
 
 def getPublicationsOfAuthor(author: Author):
+    if not hasToken():
+        return []
     id = _getID(author)
     if id is None:
         return []
 
     url = 'academic/publication/?academic=' + str(id)
     json_obj = _request(url)
+    if json_obj is None:
+        print("Publons.com | Too many requests")
+        return []
     while True:
         results = json_obj['results']
         for res in results:
@@ -97,6 +105,8 @@ def getPublicationsOfAuthor(author: Author):
 
 
 def getAuthorsOfUniversity():
+    if not hasToken():
+        return []
     inst = 'Murmansk State Technical University'
     url = 'academic/?institution=' + inst
     json_obj = _request(url)

@@ -2,22 +2,24 @@ from StoredObjects import Author, Publication
 from . import *
 
 
-def collectAuthorApiData(author, fromDate, toDate):
+def collectAuthorApiData(author, fromDate, toDate, usePublons):
     publications = []
     if author is not None:
         if author.orcID is None:
             author.orcID = orcid_api.getOrcidByName(author)
-            publons_api.addAuthorIDs(author)
+            if usePublons:
+                publons_api.addAuthorIDs(author)
 
-        publonsPubls = publons_api.getPublicationsOfAuthor(author)
-        for publon in publonsPubls:
-            if fromDate <= publon.publishedDate <= toDate:
-                scopusPub = scopus_api.indexRetrieval(publon.doi)
-                publon.enrich(scopusPub)
+        if usePublons:
+            publonsPubls = publons_api.getPublicationsOfAuthor(author)
+            for publon in publonsPubls:
+                if fromDate <= publon.publishedDate <= toDate:
+                    scopusPub = scopus_api.indexRetrieval(publon.doi)
+                    publon.enrich(scopusPub)
 
-                if not publon.searchAuthor(author):
-                    author.addPublication(publon)
-                    publications.append(publon)
+                    if not publon.searchAuthor(author):
+                        author.addPublication(publon)
+                        publications.append(publon)
 
         crossrefPubls = crossref_api.getPublicationsByPeriod(author, fromDate, toDate)
         for cross in crossrefPubls:

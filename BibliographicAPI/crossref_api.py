@@ -1,10 +1,10 @@
 import requests
 import json
-from crossref.restful import Works
-from StoredObjects import Publication
-from StoredObjects import University
 from datetime import datetime
+from dateutil.parser import parse as parseDate
 
+from crossref.restful import Works
+from StoredObjects import University, Publication
 _baseUrl = 'https://api.crossref.org/'
 
 def getPublicationByDOI(doi):
@@ -20,9 +20,10 @@ def getPublicationByDOI(doi):
         publ.issn = work['ISSN']
     publ.citations = work['is-referenced-by-count']
     publ.publisher = work['publisher']
-    publ.publishedDate = work['published']['date-parts']
-    publ.indexedDate = work['indexed']['date-parts']
-
+    publishedDate = "-".join(str(part) for part in work['published']['date-parts'][0])
+    indexedDate = "-".join(str(part) for part in work['indexed']['date-parts'][0])
+    publ.publishedDate = parseDate(publishedDate).date()
+    publ.indexedDate = parseDate(indexedDate).date()
     publ.containerTitle = work['container-title']
 
     authors = work['author']
@@ -75,16 +76,7 @@ def getPublicationsByPeriod(author, fromDate, toDate):
             publ = getPublicationByDOI(doi)
             if publ is None:
                 continue
-            # publ.Merge(scopus_api.IndexRetrieval(doi))
-
             publications.append(publ)
 
-            # createdTimeStamp = item['created']['timestamp']
-            # createdDate = datetime.fromtimestamp(createdTimeStamp / 1000)
-            #
-            # print(item['title'][0], au['given'], au['family'])
-            # text += item['title'][0] + '\n'
-            # text += au['given'] + ' ' + au['family'] + ', ' + createdDate.strftime(dateFormat)
-            # text += '\n---------------------\n'
 
     return publications
